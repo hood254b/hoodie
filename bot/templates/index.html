@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background: #f8f9fa;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        textarea {
+            width: 60%;
+            height: 100px;
+            padding: 10px;
+            resize: none;
+        }
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        .logout {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <a class="logout" href="{{ url_for('logout') }}">Logout</a>
+    <h1>Admin Dashboard</h1>
+    <p style="text-align:center;">Total Audience: <strong>{{ count }}</strong></p>
+
+    <form method="POST" action="{{ url_for('broadcast') }}">
+        <textarea name="message" placeholder="Enter broadcast message..." required></textarea><br>
+        <button type="submit">Send Broadcast</button>
+    </form>
+
+    <h2 style="text-align:center;">Audience List</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Chat ID</th>
+        </tr>
+        {% for user in audience %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.chat_id }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
