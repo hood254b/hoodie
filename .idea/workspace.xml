@@ -6,8 +6,39 @@
   <component name="ChangeListManager">
     <list default="true" id="c5efba5b-d063-4ef3-afc7-2c1bce6caa46" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/Procfile" beforeDir="false" afterPath="$PROJECT_DIR$/bot/Procfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/render.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/bot/render.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/.idea/PythonProject2.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/Procfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/_init_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/admin.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/app.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/audience.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/binance.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/bot.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/broadcaster.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/chat_ids.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/chat_ids.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/config.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/database.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/instance/users.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/payment.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/render.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/send_broadcast.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/static/style.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/templates/dashboard.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/templates/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/templates/layout.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/templates/login.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/users.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/users.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/vip.db" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +75,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/hood boey/PycharmProjects/telegram_bot/bot",
+    "last_opened_file_path": "C:/Users/hood boey/PycharmProjects/telegram_bot",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   },
   "keyToStringList": {
@@ -56,8 +87,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\hood boey\PycharmProjects\telegram_bot\bot" />
       <recent name="C:\Users\hood boey\PycharmProjects\telegram_bot" />
+      <recent name="C:\Users\hood boey\PycharmProjects\telegram_bot\bot" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\hood boey\PycharmProjects\telegram_bot\telegram-bot-panel" />
     </key>
   </component>
   <component name="SharedIndexes">
