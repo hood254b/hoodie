@@ -68,7 +68,12 @@ def broadcast():
             chat_ids = [line.strip() for line in f if line.strip()]
 
     # Create inline keyboard with /vip button
-    keyboard = [[InlineKeyboardButton(text="For more accurate predicts subscribe here 👑(/vip) ", callback_data="/vip")]]
+    keyboard = [[
+        InlineKeyboardButton(
+            text="💎 Access VIP",
+            url="http://t.me/mastermind1X2_bot?start=vip"
+        )
+    ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     for chat_id in chat_ids:
