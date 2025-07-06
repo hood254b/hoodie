@@ -446,7 +446,7 @@ async def viphistory_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Please Contact us through link: ")
+    await update.message.reply_text("Please Contact us through link: @mastermindx0 ")
 
 SUBSCRIBERS_FILE='subscribers.json'
 

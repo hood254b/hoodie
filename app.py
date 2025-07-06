@@ -1,10 +1,31 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-import os
 import json
+import sqlite3
+
+import os
+
+from flask import Flask, render_template, request, redirect, url_for, session
+
+
+def init_logs_db():
+    conn = sqlite3.connect('broadcast_logs.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS broadcast_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            chat_id TEXT,
+            status TEXT,
+            timestamp TEXT,
+            message_snippet TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+
+init_logs_db()
 
 from sqlalchemy import Update
 from telegram import Bot
-import sqlite3
 from werkzeug.security import check_password_hash
 
 import asyncio
@@ -28,6 +49,29 @@ def webhook():
     update = Update.de_json(request.get_json(force=True), application.bot)
     application.update_queue.put_nowait(update)
     return 'ok'
+
+
+@app.route('/broadcast-history')
+def broadcast_history():
+    conn = sqlite3.connect('broadcast_logs.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM broadcast_logs ORDER BY timestamp DESC LIMIT 5000')
+    logs = cursor.fetchall()
+    conn.close()
+    return render_template('broadcast_history.html', logs=logs)
+
+@app.route('/broadcast-history')
+def view_broadcast_history():
+    conn = sqlite3.connect('broadcast_logs.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM broadcast_logs ORDER BY timestamp DESC LIMIT 5000')
+    logs = cursor.fetchall()
+    conn.close()
+    return render_template('broadcast_history.html', logs=logs)
+
+
 
 
 def get_db_connection():
@@ -54,17 +98,17 @@ def login():
 
     return render_template('login.html')
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 @app.route('/broadcast', methods=['POST'])
 def broadcast():
     from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+    from datetime import datetime
+    import sqlite3
 
     message = request.form['message']
     success_count = 0
     failure_count = 0
 
-    # Read chat IDs
     chat_ids = []
     if os.path.exists(CHAT_ID_FILE):
         with open(CHAT_ID_FILE, 'r') as f:
@@ -79,6 +123,10 @@ def broadcast():
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
+    # 🟢 BEGIN: Insert broadcast logs
+    conn = sqlite3.connect('broadcast_logs.db')
+    cursor = conn.cursor()
+
     for chat_id in chat_ids:
         try:
             bot.send_message(
@@ -86,16 +134,30 @@ def broadcast():
                 text=message,
                 reply_markup=reply_markup
             )
+            status = 'success'
             success_count += 1
         except Exception as e:
             print(f"Failed to send to {chat_id}: {e}")
+            status = 'failure'
             failure_count += 1
 
-    return render_template(
-        "broadcast_result.html",
-        success=success_count,
-        failure=failure_count
-    )
+        # Save to DB
+        cursor.execute('''
+            INSERT INTO broadcast_logs (chat_id, status, timestamp, message_snippet)
+            VALUES (?, ?, ?, ?)
+        ''', (
+            chat_id,
+            status,
+            datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            message[:100]
+        ))
+
+    conn.commit()
+    conn.close()
+    # 🔴 END
+
+    # Optional: Display result page
+    return render_template("broadcast_result.html", success=success_count, failure=failure_count)
 
 
 
