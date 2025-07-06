@@ -1,7 +1,9 @@
 from cmath import e
 from typing import final
+from urllib import request
 
 import telegram
+from flask import Flask
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, CallbackQueryHandler, \
     ConversationHandler, ContextTypes, \
@@ -20,6 +22,27 @@ CHAT_ID_FILE = "chat_ids.txt"
 
 USER_DATA_FILE = "users.json"
 CHAT_ID_FILE = "chat_ids.txt"
+BOT_TOKEN = os.environ.get("7270921648:AAH4qX80XtgKUoCzbMlNsDec6enm4TWNKR4")
+RENDER_URL = "https://mastermind-j7f9.onrender.com"
+
+# Set up Flask and telegram app
+flask_app = Flask(__name__)
+application = Application.builder().token(TOKEN).build()
+
+
+
+# Route to receive Telegram webhook updates
+@flask_app.route("/webhook", methods=["POST"])
+def webhook():
+    update = Update.de_json(request.get_json(force=True), application.bot)
+    application.update_queue.put_nowait(update)
+    return "ok"
+
+# Route to manually set webhook
+@flask_app.route("/set_webhook")
+def set_webhook():
+    success = application.bot.set_webhook(f"{RENDER_URL}/webhook")
+    return "Webhook set!" if success else "Failed to set webhook."
 
 def save_user_data(user):
     data = {}
@@ -31,8 +54,7 @@ def save_user_data(user):
     data[user_id] = {
         "username": user.username,
         "first_name": user.first_name,
-        "address": user.language_code  # Customize if you collect actual address
-    }
+        "address": user.language_code      }
 
     with open(USER_DATA_FILE, 'w') as f:
         json.dump(data, f)
@@ -161,134 +183,134 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay TZS: 50,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay TZS: 50,000')
     elif query.data == 'nigeria1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay NGN: 25,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay NGN: 25,000')
     elif query.data == 'paywithcryptocurrency1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='binance.jpg',
-            caption="<b>Copy your preferred address to make a monthly subscription of $20 for 3-10 odds \n- Binance ID: 797057741\n- TRC20 Address: TDwiXoR9N1U1WVmLKyC9NPAG6ceYfzJjXc\n-Bit coin Address: 1AGcSgoYB429QHDCT1Z5EkgJoE54QgmWJk\n\nThen send payment screenshot here: contact 👉@MastermindAITIPS</b>", parse_mode='HTML')
+            caption="<b>Copy your preferred address to make a monthly subscription of $20 for 3-10 odds \n- Binance ID: 797057741\n- TRC20 Address: TDwiXoR9N1U1WVmLKyC9NPAG6ceYfzJjXc\n-Bit coin Address: 1AGcSgoYB429QHDCT1Z5EkgJoE54QgmWJk\n\nThen send payment screenshot here: contact 👉@mastermindx0</b>", parse_mode='HTML')
 
     elif query.data == 'kenya1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay KSH: 1,500')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay KSH: 1,500')
     elif query.data == 'rwanda1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay RWF: 30,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay RWF: 30,000')
     elif query.data == 'unitedstates1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay USD:20')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay USD:20')
     elif query.data == 'europeaneconomicarea1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay EUR:25')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay EUR:25')
     elif query.data == 'uganda1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay UGX: 50,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay UGX: 50,000')
     elif query.data == 'westafricancfafrancbceao1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay CFA: 10,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay CFA: 10,000')
     elif query.data == 'canada1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay CAD: 30')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay CAD: 30')
     elif query.data == 'Unitedkingdom1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay GBP: 15')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay GBP: 15')
     elif query.data == 'southafrica':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay R: 350')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay R: 350')
     elif query.data == 'ghana1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay GHC: 250')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay GHC: 250')
     elif query.data == 'morocco1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay MAD: 180')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay MAD: 180')
     elif query.data == 'zambia1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay ZNW: 500')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay ZNW: 500')
     elif query.data == 'malawi1':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay MWK: 35,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay MWK: 35,000')
 
     elif query.data == 'tanzania2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay TZS: 70,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay TZS: 70,000')
     elif query.data == 'nigeria2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay NGN: 40,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay NGN: 40,000')
     elif query.data == 'paywithcryptocurrency2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='binance.jpg',
-            caption="<b>Copy your preferred address to make a monthly subscription of $30 for 10+ odds \n- Binance ID: 797057741\n- TRC20 Address: TDwiXoR9N1U1WVmLKyC9NPAG6ceYfzJjXc\n-Bit coin Address: 1AGcSgoYB429QHDCT1Z5EkgJoE54QgmWJk\n\nThen send payment screenshot here: contact 👉@MastermindAITIPS</b>",parse_mode='HTML')
+            caption="<b>Copy your preferred address to make a monthly subscription of $30 for 10+ odds \n- Binance ID: 797057741\n- TRC20 Address: TDwiXoR9N1U1WVmLKyC9NPAG6ceYfzJjXc\n-Bit coin Address: 1AGcSgoYB429QHDCT1Z5EkgJoE54QgmWJk\n\nThen send payment screenshot here: contact 👉@mastermindx0</b>",parse_mode='HTML')
     elif query.data == 'kenya2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay KSH: 3,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay KSH: 3,000')
     elif query.data == 'rwanda2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay RWF: 40,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay RWF: 40,000')
     elif query.data == 'unitedstates2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay USD:30')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay USD:30')
     elif query.data == 'europeaneconomicarea2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay EUR: 40')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay EUR: 40')
     elif query.data == 'uganda2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay UGX: 70,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay UGX: 70,000')
     elif query.data == 'westafricancfafrancbceao2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay CFA: 15,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay CFA: 15,000')
     elif query.data == 'canada2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay CAD: 40')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay CAD: 40')
     elif query.data == 'Unitedkingdom2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
@@ -298,117 +320,117 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay R: 500')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay R: 500')
     elif query.data == 'ghana2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay GHC: 400')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay GHC: 400')
     elif query.data == 'morocco2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay MAD: 300')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay MAD: 300')
     elif query.data == 'zambia2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay ZMW: 600')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay ZMW: 600')
     elif query.data == 'malawi2':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay MWK: 50,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay MWK: 50,000')
     elif query.data == 'tanzania3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay TZS: 80,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay TZS: 80,000')
     elif query.data == 'nigeria3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay NGN: 50,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay NGN: 50,000')
     elif query.data == 'paywithcryptocurrency3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='binance.jpg',
-            caption="<b>Copy your preferred address to make a monthly subscription of $50 for HT/FT \n- Binance ID: 797057741\n- TRC20 Address: TDwiXoR9N1U1WVmLKyC9NPAG6ceYfzJjXc\n-Bit coin Address: 1AGcSgoYB429QHDCT1Z5EkgJoE54QgmWJk\n\nThen send payment screenshot here: contact 👉@MastermindAITIPS</b>",parse_mode='HTML')
+            caption="<b>Copy your preferred address to make a monthly subscription of $50 for HT/FT \n- Binance ID: 797057741\n- TRC20 Address: TDwiXoR9N1U1WVmLKyC9NPAG6ceYfzJjXc\n-Bit coin Address: 1AGcSgoYB429QHDCT1Z5EkgJoE54QgmWJk\n\nThen send payment screenshot here: contact 👉 @mastermindx0</b>",parse_mode='HTML')
     elif query.data == 'kenya3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay KSH: 4,500')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay KSH: 4,500')
     elif query.data == 'rwanda3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay RWF: 70,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay RWF: 70,000')
     elif query.data == 'unitedstates3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay USD: 50')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay USD: 50')
     elif query.data == 'europeaneconomicarea3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay EUR: 50')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay EUR: 50')
     elif query.data == 'uganda3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay UGX: 70,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay UGX: 70,000')
     elif query.data == 'westafricancfafrancbceao3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay CFA: 20,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay CFA: 20,000')
     elif query.data == 'canada3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay CAD: 60')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay CAD: 60')
     elif query.data == 'unitedkingdom3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay GBP: 35')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay GBP: 35')
     elif query.data == 'southafrica3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay R: 600')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay R: 600')
     elif query.data == 'ghana3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay GHS: 600')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay GHS: 600')
     elif query.data == 'morocco3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay MAD: 500')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay MAD: 500')
     elif query.data == 'zambia3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay ZMW: 800')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0 to pay ZMW: 800')
     elif query.data == 'malawi3':
         await context.bot.send_photo(
             chat_id=query.message.chat_id,
             photo='payment.jpg',
-            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https/ to pay MWK: 70,000')
+            caption='if asked to pay with credit card,click the button shown on this image, to choose a local mobile or bank payment method.\n\nplease click these link: https://t.me/mastermindx0  to pay MWK: 70,000')
 
 
 async def tips_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "  🔥🔥🔥🔥🔥TODAY'S TIP!🔥🔥🔥🔥\n ------------------------------------------------\n              📅 05 JUN 2025\n\n              🔸 League👉 UEFA\n\n               ⚽️  Spain vs France\n\n               ➡️  Pick: Over2.5(2.00)\n\n              🕙 Time: 22:00\n\nFor more accurate predicts subscribe here 👑(/vip)")
+        "  🔥🔥🔥🔥🔥TODAY'S TIP!🔥🔥🔥🔥\n ------------------------------------------------\n              📅 06 JUL 2025\n\n              🔸 League👉 FINLAND\n\n               ⚽️ Mikkeli vs EPS\n\n                ➡️  Pick: Over2.5(1.62)\n\n              🕙 Time: 18:30\n\nFor more accurate predicts subscribe here 👑(/vip)")
 
 
 async def freetiphistory_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "  🎖🎖🎖FREE TIP HISTORY🎖🎖🎖\n ------------------------------------------------\n              📅 04 JUN 2025\n\n              🔸 League👉 UEFA\n\n               ⚽️  Germany vs Portugal\n\n               ➡️  Pick: GG(1.53)\n\n              🪐 Results  1:2 ✅\n\n  🏅🏅 WON SUCCESSFULLY!!!🏅🏅\n\n\n               📅 03 JUN 2025\n\n              🔸 League👉 GERMANY\n\n               ⚽️  Kaiserslautern II vs Balingen\n\n               ➡️  Pick: GG(2.02)\n\n              🪐 Results  1:1 ✅\n\n  🏅🏅 WON SUCCESSFULLY!!!🏅🏅\n\nFor more accurate predicts subscribe here 👑(/vip)")
+        "  🎖🎖🎖FREE TIP HISTORY🎖🎖🎖\n ------------------------------------------------\n              📅  05 JUL 2025\n\n              🔸 League👉 NORWAY\n\n               ⚽️  Tromso vs Molde\n\n               ➡️  Pick: Over2.5(1.90)\n\n              🪐 Results  1:0 \n\n  \n\n\n               📅 04 JUl 2025\n\n              🔸 League👉 FIFA\n\n               ⚽️ Fluminense vs Al Hilal\n\n                ➡️  Pick: GG/BTTS(2.10)\n\n              🪐 Results  2:1✅\n\n 🏅🏅 WON SUCCESSFULLY!!!🏅🏅\n\nFor more accurate predicts subscribe here 👑(/vip)")
 
 async def sub_button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -420,7 +442,7 @@ async def end_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def viphistory_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "  🏆🏆🏆🏆vip history!🏆🏆🏆🏆\n ------------------------------------------------\n              📅 24 MAY 2025\n\n    👇👇VIP 3+ODDS RESULTS👇👇\n\n              🔸 League👉 UEFA\n\n               ⚽️  Man U vs Chelsea\n\n               ➡️  Pick: GG(1.80)\n\n              🪐 Results  2:2 ✅\n\n🔸 League👉 UEFA\n\n               ⚽️  Man city vs Chelsea\n\n               ➡️  Pick: 1 (1.90)\n\n              🪐 Results   2:1 ✅\n  🏅🏅 WON SUCCESSFULLY!!!🏅🏅\n\nFor more accurate predicts subscribe here 👑(/vip)\n-----------------------------\n  👇👇VIP 10+ ODDS👇👇\n\n🔸 League👉 UEFA\n\n               ⚽️  Crystal palace vs Chelsea\n\n               ➡️  Pick: x(3.52)\n\n             🪐 Results  2:2 ✅\n\n🔸 League👉 laliga\n\n               ⚽️  Sunderland vs Barcelona\n\n               ➡️  Pick: 2&GG(3.12)\n\n              🪐 Results  1:2 ✅\n\n 🏅🏅 WON SUCCESSFULLY!!!🏅🏅\nFor more accurate predicts subscribe here 👑(/vip)\n--------------------------------\n     👇👇HT-FT RESULTS!!👇👇\n\n🔸 League👉 CHAMPIONSHIP\n\n               ⚽️  Man U vs PSG\n\n               ➡️  Pick: HT-FT👉1X (15.00)\n\n              🪐 Results  HT 2:1 FT 2:2 ✅\n  🏅🏅 WON SUCCESSFULLY!!!🏅🏅\n\nFor more accurate predicts subscribe here 👑(/vip)")
+        "  🏆🏆🏆🏆VIP HISTORY🏆🏆🏆🏆\n ------------------------------------------------\n              📅 05 JUL 2025\n\n    👇👇VIP 2-4 ODDS RESULTS👇👇\n\n              🔸 League👉 IRELAND\n\n               ⚽️  Sligo vs Shamrock\n\n               ➡️  Pick: GG/BTTS(2.10)\n\n              🪐 Results  2:2 ✅\n\n🔸 League👉 NORWAY\n\n               ⚽️  Viking vs stromsgodset\n\n               ➡️  Pick: 1 (1.44)\n\n              🪐 Results   1:0 ✅\n  🏅🏅 WON SUCCESSFULLY!!!🏅🏅\n\nFor more accurate predicts subscribe here 👑(/vip)\n-----------------------------\n  👇👇VIP 10+ ODDS👇👇\n\n🔸 League👉 NORWAY\n\n               ⚽️  Valerenga vs Fredrikstad\n\n               ➡️  Pick: x(3.40)\n\n             🪐 Results  1:1 ✅\n\n🔸 League👉 ROMANIA\n\n               ⚽️  FCSB vs CFR\n\n               ➡️  Pick: 1&GG(4.40)\n\n              🪐 Results  2:1 ✅\n\n 🏅🏅 WON SUCCESSFULLY!!!🏅🏅\nFor more accurate predicts subscribe here 👑(/vip)\n--------------------------------\n     👇👇HT-FT RESULTS!!👇👇\n\n🔸 League👉 FINLAND\n\n               ⚽️  SJK vs Ilves\n\n               ➡️  Pick: HT-FT👉2X (15.00)\n\n              🪐 Results  HT 0:1 FT 1:1 ✅\n  🏅🏅 WON SUCCESSFULLY!!!🏅🏅\n\nFor more accurate predicts subscribe here 👑(/vip)")
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -483,6 +505,19 @@ def daily_message(context: ContextTypes.DEFAULT_TYPE):
     context.bot.send_message(chat_id=chat_id, text="🌞 Good morning! check for your today's tip. /start")
     context.job_queue.run_daily(callback=daily_message, time=time(hour=9, minute=0), days=(0, 1, 2, 3, 4, 5, 6), context=chat_id,
         name=f"daily_message_{chat_id}")
+
+    import threading
+
+    WEBHOOK_URL = "https://mastermind-j7f9.onrender.com/webhook"
+
+    def set_webhook_async():
+        import time
+        time.sleep(3)  # wait for server to start
+        success = application.bot.set_webhook(WEBHOOK_URL)
+        print("Webhook set successfully ✅" if success else "Failed to set webhook ❌")
+
+    # Start webhook setup in background
+    threading.Thread(target=set_webhook_async).start()
 
 
 

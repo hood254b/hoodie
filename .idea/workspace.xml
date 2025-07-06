@@ -6,39 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="c5efba5b-d063-4ef3-afc7-2c1bce6caa46" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/.idea/PythonProject2.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/Procfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/_init_.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/admin.db" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/app.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/audience.db" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/binance.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/bot.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/broadcaster.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/chat_ids.db" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/chat_ids.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/config.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/database.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/instance/users.db" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/payment.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/render.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/send_broadcast.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/static/style.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/templates/dashboard.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/templates/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/templates/layout.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/templates/login.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/users.db" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/users.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/vip.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat_ids.txt" beforeDir="false" afterPath="$PROJECT_DIR$/chat_ids.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users.json" beforeDir="false" afterPath="$PROJECT_DIR$/users.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,6 +26,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="SYNC" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -64,27 +36,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python._init_.executor": "Run",
-    "Python.admin.executor": "Run",
-    "Python.app.executor": "Run",
-    "Python.bot.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/hood boey/PycharmProjects/telegram_bot",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python._init_.executor&quot;: &quot;Run&quot;,
+    &quot;Python.admin.executor&quot;: &quot;Run&quot;,
+    &quot;Python.app.executor&quot;: &quot;Run&quot;,
+    &quot;Python.bot.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/hood boey/PycharmProjects/telegram_bot&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   },
-  "keyToStringList": {
-    "ChangesTree.GroupingKeys": [
-      "directory",
-      "repository"
+  &quot;keyToStringList&quot;: {
+    &quot;ChangesTree.GroupingKeys&quot;: [
+      &quot;directory&quot;,
+      &quot;repository&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\hood boey\PycharmProjects\telegram_bot" />

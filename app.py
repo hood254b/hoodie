@@ -1,11 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import os
 import json
+
+from sqlalchemy import Update
 from telegram import Bot
 import sqlite3
 from werkzeug.security import check_password_hash
 
 import asyncio
+
+from bot import application
+
 app = Flask(__name__)
 app.secret_key = 'hood'
 
@@ -17,6 +22,13 @@ bot = Bot(token=BOT_TOKEN)
 
 USERNAME = 'hoody'
 PASSWORD = 'hoodie25'
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    update = Update.de_json(request.get_json(force=True), application.bot)
+    application.update_queue.put_nowait(update)
+    return 'ok'
+
 
 def get_db_connection():
     conn = sqlite3.connect('admin.db')
@@ -41,6 +53,42 @@ def login():
             return render_template('login.html', error='Invalid credentials')
 
     return render_template('login.html')
+
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+@app.route('/broadcast', methods=['POST'])
+def broadcast():
+    message = request.form['message']
+    success_count = 0
+    failure_count = 0
+    chat_ids = []
+
+    if os.path.exists(CHAT_ID_FILE):
+        with open(CHAT_ID_FILE, 'r') as f:
+            chat_ids = [line.strip() for line in f if line.strip()]
+
+    # Create inline keyboard with /vip button
+    keyboard = [[InlineKeyboardButton(text="For more accurate predicts subscribe here 👑(/vip) ", callback_data="/vip")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    for chat_id in chat_ids:
+        try:
+            bot.send_message(
+                chat_id=chat_id,
+                text=message,
+                reply_markup=reply_markup
+            )
+            success_count += 1
+        except Exception as e:
+            print(f"Failed to send to {chat_id}: {e}")
+            failure_count += 1
+
+    return f"""
+    <h3>Broadcast Report</h3>
+    <p>✅ Sent to: {success_count}</p>
+    <p>❌ Failed: {failure_count}</p>
+    <a href="/dashboard">Go back to Dashboard</a>
+    """
 
 
 @app.route('/logout')
