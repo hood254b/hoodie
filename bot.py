@@ -135,7 +135,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         reply_markup = InlineKeyboardMarkup(sub_keyboard)
         await query.edit_message_text(text='select country to subscribe for:\n👉 3-10 VIP ODDS',
-                                      reply_markup=reply_markup)
+                                      reply_markup =reply_markup)
     elif query.data == '10+vipodds':
         sub_keyboard = [
             [InlineKeyboardButton('Pay with Cryptocurrency', callback_data='paywithcryptocurrency2')],

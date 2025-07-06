@@ -7,22 +7,23 @@ from flask import Flask, render_template, request, redirect, url_for, session
 
 
 def init_logs_db():
-    conn = sqlite3.connect('broadcast_logs.db')
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS broadcast_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            chat_id TEXT,
-            status TEXT,
-            timestamp TEXT,
-            message_snippet TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
-
+    if not os.path.exists('broadcast_logs.db'):  #
+        conn = sqlite3.connect('broadcast_logs.db')
+        c = conn.cursor()
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS broadcast_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                chat_id TEXT,
+                status TEXT,
+                timestamp TEXT,
+                message_snippet TEXT
+            )
+        ''')
+        conn.commit()
+        conn.close()
 
 init_logs_db()
+
 
 from sqlalchemy import Update
 from telegram import Bot
