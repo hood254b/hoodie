@@ -151,14 +151,31 @@ def broadcast():
             datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             message[:100]
         ))
+        admin_chat_id = "6659858896"  # Replace this with your real chat ID
+        summary_msg = f"""
+        <b>Broadcast completed:</b>
+        ✅ Successfully sent to <b>{success_count}</b> users.
+        ❌ Failed to send to <b>{failure_count}</b> users.
+        """
+        bot.send_message(
+            chat_id=admin_chat_id,
+            text=summary_msg,
+            parse_mode="HTML"
+        )
 
     conn.commit()
     conn.close()
     # 🔴 END
 
     # Optional: Display result page
-    return render_template("broadcast_result.html", success=success_count, failure=failure_count)
-
+    return f"""
+        <h3>📢 Broadcast Completed</h3>
+        <p>✅ Successfully sent to <strong>{success_count}</strong> users.</p>
+        <p>❌ Failed to send to <strong>{failure_count}</strong> users.</p>
+        <br>
+        <a href="/dashboard">⬅ Back to Dashboard</a> | 
+        <a href="/broadcast-history">📋 View History</a>
+    """
 
 
 @app.route('/logout')
