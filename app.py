@@ -58,19 +58,22 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 @app.route('/broadcast', methods=['POST'])
 def broadcast():
+    from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
     message = request.form['message']
     success_count = 0
     failure_count = 0
-    chat_ids = []
 
+    # Read chat IDs
+    chat_ids = []
     if os.path.exists(CHAT_ID_FILE):
         with open(CHAT_ID_FILE, 'r') as f:
             chat_ids = [line.strip() for line in f if line.strip()]
 
-    # Create inline keyboard with /vip button
+    # VIP link button
     keyboard = [[
         InlineKeyboardButton(
-            text="💎 Access VIP",
+            text="👑 Access VIP (/vip)",
             url="http://t.me/mastermind1X2_bot?start=vip"
         )
     ]]
@@ -88,12 +91,12 @@ def broadcast():
             print(f"Failed to send to {chat_id}: {e}")
             failure_count += 1
 
-    return f"""
-    <h3>Broadcast Report</h3>
-    <p>✅ Sent to: {success_count}</p>
-    <p>❌ Failed: {failure_count}</p>
-    <a href="/dashboard">Go back to Dashboard</a>
-    """
+    return render_template(
+        "broadcast_result.html",
+        success=success_count,
+        failure=failure_count
+    )
+
 
 
 @app.route('/logout')
