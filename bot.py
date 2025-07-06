@@ -17,7 +17,7 @@ import sqlite3
 
 TOKEN: final = '7270921648:AAH4qX80XtgKUoCzbMlNsDec6enm4TWNKR4'
 BOT_USERNAME: final = '@mastermind1X2_bot'
-ADMIN_ID = 7270921648
+ADMIN_ID = 6659858896
 CHAT_ID_FILE = "chat_ids.txt"
 
 USER_DATA_FILE = "users.json"

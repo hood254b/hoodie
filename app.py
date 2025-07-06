@@ -61,18 +61,6 @@ def broadcast_history():
     conn.close()
     return render_template('broadcast_history.html', logs=logs)
 
-@app.route('/broadcast-history')
-def view_broadcast_history():
-    conn = sqlite3.connect('broadcast_logs.db')
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM broadcast_logs ORDER BY timestamp DESC LIMIT 5000')
-    logs = cursor.fetchall()
-    conn.close()
-    return render_template('broadcast_history.html', logs=logs)
-
-
-
 
 def get_db_connection():
     conn = sqlite3.connect('admin.db')
@@ -151,21 +139,22 @@ def broadcast():
             datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             message[:100]
         ))
-        admin_chat_id = "6659858896"  # Replace this with your real chat ID
-        summary_msg = f"""
-        <b>Broadcast completed:</b>
-        ✅ Successfully sent to <b>{success_count}</b> users.
-        ❌ Failed to send to <b>{failure_count}</b> users.
-        """
-        bot.send_message(
-            chat_id=admin_chat_id,
-            text=summary_msg,
-            parse_mode="HTML"
-        )
+
 
     conn.commit()
     conn.close()
     # 🔴 END
+    admin_chat_id = "6659858896"  # Replace this with your real chat ID
+    summary_msg = f"""
+           <b>Broadcast completed:</b>
+           ✅ Successfully sent to <b>{success_count}</b> users.
+           ❌ Failed to send to <b>{failure_count}</b> users.
+           """
+    bot.send_message(
+        chat_id=admin_chat_id,
+        text=summary_msg,
+        parse_mode="HTML"
+    )
 
     # Optional: Display result page
     return f"""
@@ -213,8 +202,21 @@ def dashboard():
             asyncio.run(send_all())  # Only run the loop once
             message_status = f"Message sent to {len(ids)} users."
 
-    return render_template('dashboard.html', user_count=user_count, users=users.values(), status=message_status)
+    log_count = 0
+    if os.path.exists('broadcast_logs.db'):
+        conn = sqlite3.connect('broadcast_logs.db')
+        cur = conn.cursor()
+        cur.execute('SELECT COUNT(*) FROM broadcast_logs')
+        log_count = cur.fetchone()[0]
+        conn.close()
 
+    return render_template(
+        'dashboard.html',
+        user_count=user_count,
+        users=users.values(),
+        status=message_status,
+        log_count=log_count
+    )
 
 
 if __name__ == '__main__':
