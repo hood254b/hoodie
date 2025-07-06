@@ -1,40 +1,69 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Broadcast History</title>
+    <title>📋 Broadcast History</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            padding: 30px;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f9f9f9;
+            padding: 40px;
+            color: #333;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .summary {
+            font-weight: bold;
+            margin-bottom: 15px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 1em;
+            background: white;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
         }
         th, td {
-            border: 1px solid #ccc;
-            padding: 8px 12px;
-            text-align: left;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
         }
         th {
-            background-color: #f4f4f4;
+            background: #f2f2f2;
         }
-        .success { color: green; }
-        .failure { color: red; }
-        .back { margin-top: 20px; display: inline-block; }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .failure {
+            color: red;
+            font-weight: bold;
+        }
+        .back-link {
+            margin-top: 20px;
+            display: inline-block;
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <h2>📋 Broadcast Delivery History (Last 5000)</h2>
+
+    <h2>📋 Broadcast Delivery History</h2>
+
+    <div class="summary">
+        Showing the last {{ logs|length }} entries
+    </div>
+
     <table>
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Chat ID</th>
                 <th>Status</th>
-                <th>Time</th>
-                <th>Snippet</th>
+                <th>Timestamp</th>
+                <th>Message Snippet</th>
             </tr>
         </thead>
         <tbody>
@@ -42,7 +71,7 @@
             <tr>
                 <td>{{ log.id }}</td>
                 <td>{{ log.chat_id }}</td>
-                <td class="{{ log.status }}">{{ log.status|capitalize }}</td>
+                <td class="{{ log.status }}">{{ log.status.capitalize() }}</td>
                 <td>{{ log.timestamp }}</td>
                 <td>{{ log.message_snippet }}</td>
             </tr>
@@ -50,6 +79,7 @@
         </tbody>
     </table>
 
-    <a class="back" href="/dashboard">⬅ Back to Dashboard</a>
+    <a href="/dashboard" class="back-link">⬅ Back to Dashboard</a>
+
 </body>
 </html>
