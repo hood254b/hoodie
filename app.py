@@ -1,18 +1,41 @@
 import json
-import sqlite3
-
 import os
+from dbm import sqlite3
 
+import psycopg2
 from flask import Flask, render_template, request, redirect, url_for, session
+from sqlalchemy import Update
+from telegram import Bot
+from werkzeug.security import check_password_hash
+import asyncio
+from datetime import datetime
+from bot import application
 
+app = Flask(__name__)
+app.secret_key = 'hood'
 
-def init_logs_db():
-    if not os.path.exists('broadcast_logs.db'):  #
-        conn = sqlite3.connect('broadcast_logs.db')
-        c = conn.cursor()
-        c.execute('''
+BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE'
+CHAT_ID_FILE = 'chat_ids.txt'
+USER_DATA_FILE = 'users.json'
+bot = Bot(token=BOT_TOKEN)
+
+USERNAME = 'hoody'
+PASSWORD = 'hoodie25'
+
+# === Database setup ===
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+def get_db_connection():
+    return psycopg2.connect(DATABASE_URL, sslmode='require')
+
+# === Init DB: Only needed once ===
+def init_logs_table():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('''
             CREATE TABLE IF NOT EXISTS broadcast_logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 chat_id TEXT,
                 status TEXT,
                 timestamp TEXT,
@@ -21,29 +44,11 @@ def init_logs_db():
         ''')
         conn.commit()
         conn.close()
+    except Exception as e:
+        print("Error initializing broadcast_logs table:", e)
 
-init_logs_db()
+init_logs_table()
 
-
-from sqlalchemy import Update
-from telegram import Bot
-from werkzeug.security import check_password_hash
-
-import asyncio
-
-from bot import application
-
-app = Flask(__name__)
-app.secret_key = 'hood'
-
-BOT_TOKEN = '7270921648:AAH4qX80XtgKUoCzbMlNsDec6enm4TWNKR4'
-CHAT_ID_FILE = 'chat_ids.txt'
-USER_DATA_FILE = 'users.json'
-bot = Bot(token=BOT_TOKEN)
-
-
-USERNAME = 'hoody'
-PASSWORD = 'hoodie25'
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -54,19 +59,15 @@ def webhook():
 
 @app.route('/broadcast-history')
 def broadcast_history():
-    conn = sqlite3.connect('broadcast_logs.db')
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM broadcast_logs ORDER BY timestamp DESC LIMIT 5000')
-    logs = cursor.fetchall()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM broadcast_logs ORDER BY timestamp DESC LIMIT 5000')
+    rows = cur.fetchall()
+    colnames = [desc[0] for desc in cur.description]
+    logs = [dict(zip(colnames, row)) for row in rows]
     conn.close()
     return render_template('broadcast_history.html', logs=logs)
 
-
-def get_db_connection():
-    conn = sqlite3.connect('admin.db')
-    conn.row_factory = sqlite3.Row
-    return conn
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -74,7 +75,9 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        conn = get_db_connection()
+        # This part still uses SQLite for user auth, unless you've moved user data to Postgres too
+        conn = sqlite3.connect('admin.db')
+        conn.row_factory = sqlite3.Row
         user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
         conn.close()
 
@@ -91,8 +94,6 @@ def login():
 @app.route('/broadcast', methods=['POST'])
 def broadcast():
     from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-    from datetime import datetime
-    import sqlite3
 
     message = request.form['message']
     success_count = 0
@@ -103,7 +104,6 @@ def broadcast():
         with open(CHAT_ID_FILE, 'r') as f:
             chat_ids = [line.strip() for line in f if line.strip()]
 
-    # VIP link button
     keyboard = [[
         InlineKeyboardButton(
             text="👑 Access VIP (/vip)",
@@ -112,9 +112,8 @@ def broadcast():
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # 🟢 BEGIN: Insert broadcast logs
-    conn = sqlite3.connect('broadcast_logs.db')
-    cursor = conn.cursor()
+    conn = get_db_connection()
+    cur = conn.cursor()
 
     for chat_id in chat_ids:
         try:
@@ -130,10 +129,9 @@ def broadcast():
             status = 'failure'
             failure_count += 1
 
-        # Save to DB
-        cursor.execute('''
+        cur.execute('''
             INSERT INTO broadcast_logs (chat_id, status, timestamp, message_snippet)
-            VALUES (?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s)
         ''', (
             chat_id,
             status,
@@ -141,23 +139,21 @@ def broadcast():
             message[:100]
         ))
 
-
     conn.commit()
     conn.close()
-    # 🔴 END
-    admin_chat_id = "6659858896"  # Replace this with your real chat ID
+
+    admin_chat_id = "6659858896"
     summary_msg = f"""
-           <b>Broadcast completed:</b>
-           ✅ Successfully sent to <b>{success_count}</b> users.
-           ❌ Failed to send to <b>{failure_count}</b> users.
-           """
+       <b>Broadcast completed:</b>
+       ✅ Successfully sent to <b>{success_count}</b> users.
+       ❌ Failed to send to <b>{failure_count}</b> users.
+    """
     bot.send_message(
         chat_id=admin_chat_id,
         text=summary_msg,
         parse_mode="HTML"
     )
 
-    # Optional: Display result page
     return f"""
         <h3>📢 Broadcast Completed</h3>
         <p>✅ Successfully sent to <strong>{success_count}</strong> users.</p>
@@ -172,6 +168,7 @@ def broadcast():
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
@@ -200,16 +197,14 @@ def dashboard():
                     except Exception as e:
                         print(f"Failed to send to {chat_id}: {e}")
 
-            asyncio.run(send_all())  # Only run the loop once
+            asyncio.run(send_all())
             message_status = f"Message sent to {len(ids)} users."
 
-    log_count = 0
-    if os.path.exists('broadcast_logs.db'):
-        conn = sqlite3.connect('broadcast_logs.db')
-        cur = conn.cursor()
-        cur.execute('SELECT COUNT(*) FROM broadcast_logs')
-        log_count = cur.fetchone()[0]
-        conn.close()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT COUNT(*) FROM broadcast_logs')
+    log_count = cur.fetchone()[0]
+    conn.close()
 
     return render_template(
         'dashboard.html',
