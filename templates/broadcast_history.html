@@ -1,119 +1,94 @@
-{% extends 'layout.html' %}
-{% block title %}Broadcast History{% endblock %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>📋 Broadcast History</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f9f9f9;
+            padding: 40px;
+            color: #333;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .summary {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background: #f2f2f2;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .failure {
+            color: red;
+            font-weight: bold;
+        }
+        .back-link {
+            margin-top: 20px;
+            display: inline-block;
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>git add .
+git commit -m "Full project redeploy: broadcast tracking, VIP links, dashboard button"
+git push origin main
 
-{% block content %}
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white">
-        <h4 class="mb-0"><i class="bi bi-clock-history"></i> Broadcast History</h4>
-    </div>
-    <div class="card-body">
-        <div class="d-flex justify-content-between mb-4">
-            <div class="stats">
-                <span class="badge bg-success me-2">
-                    <i class="bi bi-check-circle"></i> {{ logs|selectattr('status', 'equalto', 'success')|list|length }} Success
-                </span>
-                <span class="badge bg-danger me-2">
-                    <i class="bi bi-x-circle"></i> {{ logs|selectattr('status', 'equalto', 'failure')|list|length }} Failed
-                </span>
-                <span class="badge bg-secondary">
-                    <i class="bi bi-collection"></i> {{ logs|length }} Total
-                </span>
-            </div>
-            <div>
-                <form class="d-flex" method="GET" action="{{ url_for('broadcast_history') }}">
-                    <input type="text" name="search" class="form-control me-2" placeholder="Search..." value="{{ request.args.get('search', '') }}">
-                    <button type="submit" class="btn btn-outline-primary">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>ID</th>
-                        <th>Chat ID</th>
-                        <th>Status</th>
-                        <th>Timestamp</th>
-                        <th>Message</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for log in logs %}
-                    <tr>
-                        <td>{{ log.id }}</td>
-                        <td><code>{{ log.chat_id }}</code></td>
-                        <td>
-                            <span class="badge bg-{% if log.status == 'success' %}success{% else %}danger{% endif %}">
-                                {{ log.status|capitalize }}
-                            </span>
-                        </td>
-                        <td>{{ log.timestamp|datetimeformat }}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#messageModal{{ log.id }}">
-                                View
-                            </button>
-                        </td>
-                        <td>
-                            <a href="{{ url_for('resend_broadcast', log_id=log.id) }}" class="btn btn-sm btn-outline-success">
-                                <i class="bi bi-send"></i> Resend
-                            </a>
-                        </td>
-                    </tr>
-                    
-                    <!-- Message Modal -->
-                    <div class="modal fade" id="messageModal{{ log.id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Message Content</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <pre>{{ log.full_message }}</pre>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Pagination -->
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center mt-4">
-                {% if page > 1 %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('broadcast_history', page=page-1, search=request.args.get('search', '')) }}">
-                        &laquo; Previous
-                    </a>
-                </li>
-                {% endif %}
-                
-                {% for p in range(1, total_pages+1) %}
-                <li class="page-item {% if p == page %}active{% endif %}">
-                    <a class="page-link" href="{{ url_for('broadcast_history', page=p, search=request.args.get('search', '')) }}">
-                        {{ p }}
-                    </a>
-                </li>
-                {% endfor %}
-                
-                {% if page < total_pages %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('broadcast_history', page=page+1, search=request.args.get('search', '')) }}">
-                        Next &raquo;
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
+    <h2>📋 Broadcast Delivery History</h2>
+    <div class="summary">
+    Total Logs: {{ logs|length }} |
+    ✅ Success: {{ logs|selectattr('status', 'equalto', 'success')|list|length }} |
+    ❌ Failure: {{ logs|selectattr('status', 'equalto', 'failure')|list|length }}
     </div>
-</div>
-{% endblock %}
+
+
+    <div class="summary">
+        Showing the last {{ logs|length }} entries
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Chat ID</th>
+                <th>Status</th>
+                <th>Timestamp</th>
+                <th>Message Snippet</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.id }}</td>
+                <td>{{ log.chat_id }}</td>
+                <td class="{{ log.status }}">{{ log.status.capitalize() }}</td>
+                <td>{{ log.timestamp }}</td>
+                <td>{{ log.message_snippet }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="/dashboard" class="back-link">⬅ Back to Dashboard</a>
+
+</body>
+</html>
