@@ -14,11 +14,16 @@ from bot import application
 
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here')
+from datetime import datetime
+
+@app.context_processor
+def inject_now():
+    return {'now': datetime.now()}
+app.secret_key = os.environ.get('SECRET_KEY', 'hoodie')
 
 # Database setup
 db_lock = Lock()
-BOT_TOKEN = os.environ.get('BOT_TOKEN', 'your-bot-token-here')
+BOT_TOKEN = os.environ.get('BOT_TOKEN', '7270921648:AAH4qX80XtgKUoCzbMlNsDec6enm4TWNKR4')
 CHAT_ID_FILE = 'chat_ids.txt'
 USER_DATA_FILE = 'users.json'
 bot = Bot(token=BOT_TOKEN)
