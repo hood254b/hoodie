@@ -22,11 +22,10 @@ ADMIN_CHAT_ID = "6659858896"  # Your admin chat ID
 USERNAME = 'hoody'
 PASSWORD = 'hoodie25'
 
-# ✅ Safe, writable DB path setup — place this near the top
 def get_db_path(db_name):
     if 'RENDER' in os.environ:
-        base_dir = '/var/lib/render/db'
-        os.makedirs(base_dir, exist_ok=True)  # Ensure the directory exists
+        base_dir = '/tmp/db'
+        os.makedirs(base_dir, exist_ok=True)  # ✅ Allowed path
         return os.path.join(base_dir, db_name)
     return db_name
 
