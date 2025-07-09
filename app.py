@@ -25,10 +25,9 @@ PASSWORD = 'hoodie25'
 def get_db_path(db_name):
     if 'RENDER' in os.environ:
         base_dir = '/tmp/db'
-        os.makedirs(base_dir, exist_ok=True)  # ✅ Allowed path
+        os.makedirs(base_dir, exist_ok=True)
         return os.path.join(base_dir, db_name)
     return db_name
-
 
 
 def init_databases():

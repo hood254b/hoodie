@@ -1,17 +1,15 @@
-# db.py
 import sqlite3
+import os
 
-DATABASE = 'audience.db'
+def get_db_path(db_name):
+    if 'RENDER' in os.environ:
+        base_dir = '/tmp/db'
+        os.makedirs(base_dir, exist_ok=True)
+        return os.path.join(base_dir, db_name)
+    return db_name
 
-def get_db_connection():
-    conn = sqlite3.connect(DATABASE)
+def get_db_connection(db_name):
+    db_path = get_db_path(db_name)
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
-
-def record_audience(chat_id):
-    try:
-        with get_db_connection() as conn:
-            conn.execute('INSERT OR IGNORE INTO audience (chat_id) VALUES (?)', (chat_id,))
-            conn.commit()
-    except Exception as e:
-        print(f"[ERROR] Could not record chat_id {chat_id}: {e}")
