@@ -154,10 +154,14 @@ def broadcast():
         return "Message cannot be empty", 400
 
     # Prepare VIP button
-    keyboard = [[InlineKeyboardButton(
-        text="👑 Access VIP (/vip)",
-        url="http://t.me/mastermind1X2_bot?start=vip"
-    )]]
+    from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+    keyboard = [[
+        InlineKeyboardButton(
+            text="👑 Access VIP (/vip)",
+            url="http://t.me/mastermind1X2_bot?start=vip"
+        )
+    ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     # Get chat IDs
