@@ -48,16 +48,14 @@
         }
     </style>
 </head>
-<body>git add .
-git commit -m "Full project redeploy: broadcast tracking, VIP links, dashboard button"
-git push origin main
+<body>
 
 
     <h2>📋 Broadcast Delivery History</h2>
     <div class="summary">
     Total Logs: {{ logs|length }} |
-    ✅ Success: {{ logs|selectattr('status', 'equalto', 'success')|list|length }} |
-    ❌ Failure: {{ logs|selectattr('status', 'equalto', 'failure')|list|length }}
+    ✅ Success: {{ logs|selectattr('status,' 'equalto', 'success')|list|length }} |
+    ❌ Failure: {{ logs|selectattr('status,' 'equalto', 'failure')|list|length }}
     </div>
 
 

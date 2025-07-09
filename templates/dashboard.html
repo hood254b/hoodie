@@ -10,12 +10,15 @@
     </div>
     <div class="col-md-6">
         <form method="POST">
-            <textarea name="message" class="form-control" rows="3" placeholder="Broadcast message..." required></textarea>
-            <button type="submit" class="btn btn-success mt-2">Send Broadcast</button>
-            <a href="/broadcast-history" class="button">Broadcast History</a>
-            <p>📝 <strong>{{ log_count }}</strong> broadcasts logged.</p>
+    <textarea name="message" class="form-control" rows="3" placeholder="Broadcast message..." required></textarea>
 
-        </form>
+    <button type="submit" class="btn btn-success mt-2">Send Broadcast</button>
+    <a href="{{ url_for('broadcast_history') }}" class="btn btn-primary mt-2">Broadcast History</a>
+
+
+    <p class="mt-2">📝 <strong>{{ log_count }}</strong> broadcasts logged.</p>
+</form>
+
         {% if status %}
             <div class="alert alert-info mt-2">{{ status }}</div>
         {% endif %}
