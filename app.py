@@ -133,49 +133,50 @@ def broadcast():
     if not message:
         return "Message cannot be empty", 400
 
-    # VIP button
-    keyboard = [[InlineKeyboardButton("👑 Access VIP (/vip)", url="http://t.me/mastermind1X2_bot?start=vip")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Chat IDs
+    # Get chat IDs
     chat_ids = []
     if os.path.exists(CHAT_ID_FILE):
         with open(CHAT_ID_FILE, 'r') as f:
             chat_ids = [line.strip() for line in f if line.strip()]
 
+    # Initialize counters and DB
+    success_count = 0
+    failure_count = 0
     db_conn = get_db_connection('broadcast_logs.db')
     db_cursor = db_conn.cursor()
 
-    results = asyncio.run(broadcast_all(chat_ids, message, reply_markup))
+    # Send broadcast to all users
+    for chat_id in chat_ids:
+        try:
+            success = asyncio.run(async_send_message(chat_id, message))
+            status = 'success' if success else 'failure'
+            if success:
+                success_count += 1
+            else:
+                failure_count += 1
 
-    success_count = 0
-    failure_count = 0
+            db_cursor.execute('''
+                INSERT INTO broadcast_logs (chat_id, status, timestamp, message_snippet)
+                VALUES (?, ?, ?, ?)
+            ''', (
+                chat_id,
+                status,
+                datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                message[:100]
+            ))
 
-    for i, chat_id in enumerate(chat_ids):
-        status = 'success' if results[i] else 'failure'
-        if results[i]:
-            success_count += 1
-        else:
+        except Exception as e:
+            print(f"Error processing chat_id {chat_id}: {e}")
             failure_count += 1
-
-        db_cursor.execute('''
-            INSERT INTO broadcast_logs (chat_id, status, timestamp, message_snippet)
-            VALUES (?, ?, ?, ?)
-        ''', (
-            chat_id,
-            status,
-            datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            message[:100]
-        ))
 
     db_conn.commit()
     db_conn.close()
 
-    # Notify admin
+    # Notify admin of summary
     summary_msg = f"""
         <b>Broadcast completed:</b>
-        ✅ Sent to <b>{success_count}</b> users.
-        ❌ Failed for <b>{failure_count}</b> users.
+        ✅ Sent to <b>{success_count}</b> users
+        ❌ Failed for <b>{failure_count}</b> users
     """
     asyncio.run(async_send_message(ADMIN_CHAT_ID, summary_msg))
 
