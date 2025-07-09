@@ -56,6 +56,30 @@ def init_databases():
 
 
 init_databases()
+from werkzeug.security import generate_password_hash
+
+def reset_admin_user():
+    db_conn = get_db_connection('admin.db')
+    cursor = db_conn.cursor()
+
+    hashed_password = generate_password_hash(PASSWORD)
+
+    cursor.execute("SELECT * FROM users WHERE username = ?", (USERNAME,))
+    user = cursor.fetchone()
+
+    if user:
+        cursor.execute("UPDATE users SET password = ? WHERE username = ?", (hashed_password, USERNAME))
+        print(f"[INIT] ✅ Admin user '{USERNAME}' password reset.")
+    else:
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (USERNAME, hashed_password))
+        print(f"[INIT] ✅ Admin user '{USERNAME}' created.")
+
+    db_conn.commit()
+    db_conn.close()
+
+# Call it
+reset_admin_user()
+
 
 # Telegram Bot
 bot = Bot(token=BOT_TOKEN)
