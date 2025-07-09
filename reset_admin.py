@@ -1,29 +1,19 @@
 import os
-import sqlite3
 from werkzeug.security import generate_password_hash
+from db import get_db_connection  # ✅ Import shared DB logic
 
 # Configuration
 USERNAME = 'hoody'
 NEW_PASSWORD = 'hoodie25'
 
-# Safe path logic
-def get_db_path(db_name):
-    if 'RENDER' in os.environ:
-        return os.path.join('/tmp/db', db_name)
-    return db_name
-
-db_path = get_db_path('admin.db')
-
-# Ensure the directory exists (useful for RENDER.com)
-if 'RENDER' in os.environ:
-    os.makedirs('/tmp/db', exist_ok=True)
-
-# Connect and update user
-conn = sqlite3.connect(db_path)
+# Connect using shared function
+conn = get_db_connection('admin.db')
 cursor = conn.cursor()
 
+# Hash the new password
 hashed_password = generate_password_hash(NEW_PASSWORD)
 
+# Check if user exists
 cursor.execute("SELECT * FROM users WHERE username = ?", (USERNAME,))
 existing_user = cursor.fetchone()
 
