@@ -1,5 +1,5 @@
-import sqlite3
 import os
+import sqlite3
 
 def get_db_path(db_name):
     if 'RENDER' in os.environ:
@@ -13,3 +13,4 @@ def get_db_connection(db_name):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
+

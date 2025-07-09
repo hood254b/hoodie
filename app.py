@@ -8,7 +8,9 @@ from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from werkzeug.security import check_password_hash
 import asyncio
 from bot import application
-from db import get_db_path
+from db import get_db_path, get_db_connection
+
+
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -57,15 +59,6 @@ init_databases()
 
 # Telegram Bot
 bot = Bot(token=BOT_TOKEN)
-
-
-# Helper Functions
-def get_db_connection(db_name):
-    """Get a database connection with row factory"""
-    db_path = get_db_path(db_name)
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    return conn
 
 
 async def async_send_message(chat_id, message, reply_markup=None):
