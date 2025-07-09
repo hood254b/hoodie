@@ -8,6 +8,7 @@ from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from werkzeug.security import check_password_hash
 import asyncio
 from bot import application
+from db import get_db_connection
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -69,16 +70,17 @@ bot = Bot(token=BOT_TOKEN)
 
 # Helper Functions
 def get_db_path(db_name):
+    """Get the correct database path and ensure directory exists"""
     if 'RENDER' in os.environ:
-        db_dir = '/tmp/db'
-        os.makedirs(db_dir, exist_ok=True)  # ensure directory exists
-        return os.path.join(db_dir, db_name)
+        base_dir = '/var/lib/render/db'
+        os.makedirs(base_dir, exist_ok=True)  # Ensure path exists
+        return os.path.join(base_dir, db_name)
     return db_name
 
 
 
+
 async def async_send_message(chat_id, message, reply_markup=None):
-    """Wrapper for an async message sending"""
     try:
         await bot.send_message(
             chat_id=chat_id,
