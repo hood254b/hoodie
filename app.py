@@ -22,14 +22,14 @@ ADMIN_CHAT_ID = "6659858896"  # Your admin chat ID
 USERNAME = 'hoody'
 PASSWORD = 'hoodie25'
 
-
-
-# Database Setup
+# ✅ Safe, writable DB path setup — place this near the top
 def get_db_path(db_name):
-    """Get the correct database path for Render.com or local development"""
     if 'RENDER' in os.environ:
-        return f'/var/lib/render/{db_name}'
+        base_dir = '/var/lib/render/db'
+        os.makedirs(base_dir, exist_ok=True)  # Ensure the directory exists
+        return os.path.join(base_dir, db_name)
     return db_name
+
 
 
 def init_databases():
@@ -66,19 +66,6 @@ init_databases()
 
 # Telegram Bot
 bot = Bot(token=BOT_TOKEN)
-
-
-# Helper Functions
-def get_db_path(db_name):
-    """Get the correct database path and ensure directory exists"""
-    if 'RENDER' in os.environ:
-        base_dir = '/var/lib/render/db'
-        os.makedirs(base_dir, exist_ok=True)  # Ensure path exists
-        return os.path.join(base_dir, db_name)
-    return db_name
-
-
-
 
 async def async_send_message(chat_id, message, reply_markup=None):
     try:
