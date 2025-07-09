@@ -1,20 +1,18 @@
+import os
 import json
 import sqlite3
-import os
+import asyncio
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session
-from sqlalchemy import Update
-from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
-from werkzeug.security import check_password_hash, generate_password_hash
-import asyncio
+from telegram import Bot, Update
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from bot import application
 from db import get_db_path, get_db_connection
 
-# Initialize Flask app
+# --- Configuration ---
 app = Flask(__name__)
-app.secret_key = os.getenv('HOODIE', 'hoodie')  # Change for production
-
-# Configuration
+app.secret_key = os.getenv('HOODIE', 'hoodie')
 BOT_TOKEN = os.getenv('BOT_TOKEN', 'your-bot-token')
 CHAT_ID_FILE = 'chat_ids.txt'
 USER_DATA_FILE = 'users.json'
@@ -22,9 +20,11 @@ ADMIN_CHAT_ID = "6659858896"
 USERNAME = 'hoody'
 PASSWORD = 'hoodie25'
 
-# Initialize DBs
+bot = Bot(token=BOT_TOKEN)
+
+# --- DB Setup ---
 def init_databases():
-    databases = {
+    schemas = {
         'broadcast_logs.db': '''
             CREATE TABLE IF NOT EXISTS broadcast_logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,87 +42,101 @@ def init_databases():
             )
         '''
     }
-    for db_name, schema in databases.items():
-        db_path = get_db_path(db_name)
-        conn = sqlite3.connect(db_path)
-        c = conn.cursor()
-        c.execute(schema)
+    for name, schema in schemas.items():
+        path = get_db_path(name)
+        conn = sqlite3.connect(path)
+        conn.execute(schema)
         conn.commit()
         conn.close()
 
-init_databases()
-
-# Ensure admin user exists
 def reset_admin_user():
-    db_conn = get_db_connection('admin.db')
-    cursor = db_conn.cursor()
-    hashed_password = generate_password_hash(PASSWORD)
+    conn = get_db_connection('admin.db')
+    cursor = conn.cursor()
+    hashed = generate_password_hash(PASSWORD)
     cursor.execute("SELECT * FROM users WHERE username = ?", (USERNAME,))
     user = cursor.fetchone()
-    if user:
-        cursor.execute("UPDATE users SET password = ? WHERE username = ?", (hashed_password, USERNAME))
-        print(f"[INIT] ✅ Admin user '{USERNAME}' password reset.")
-    else:
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (USERNAME, hashed_password))
-        print(f"[INIT] ✅ Admin user '{USERNAME}' created.")
-    db_conn.commit()
-    db_conn.close()
 
+    if user:
+        cursor.execute("UPDATE users SET password = ? WHERE username = ?", (hashed, USERNAME))
+        print(f"[INIT] ✅ Admin user '{USERNAME}' updated.")
+    else:
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (USERNAME, hashed))
+        print(f"[INIT] ✅ Admin user '{USERNAME}' created.")
+
+    conn.commit()
+    conn.close()
+
+init_databases()
 reset_admin_user()
 
-# Telegram Bot
-bot = Bot(token=BOT_TOKEN)
-
-async def async_send_message(chat_id, message, reply_markup=None):
+# --- Async Send ---
+async def async_send_message(chat_id, message):
     try:
-        await bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)
+        await bot.send_message(chat_id=chat_id, text=message)
         return True
     except Exception as e:
-        print(f"Failed to send to {chat_id}: {e}")
+        print(f"❌ Failed to send to {chat_id}: {e}")
         return False
 
-# Routes
+async def broadcast_all(chat_ids, message):
+    tasks = [async_send_message(chat_id, message) for chat_id in chat_ids]
+    return await asyncio.gather(*tasks)
+
+# --- Routes ---
 @app.route('/webhook', methods=['POST'])
 def webhook():
     update = Update.de_json(request.get_json(force=True), application.bot)
     application.update_queue.put_nowait(update)
     return 'ok'
 
-@app.route('/broadcast-history')
-def broadcast_history():
-    try:
-        conn = get_db_connection('broadcast_logs.db')
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM broadcast_logs ORDER BY timestamp DESC LIMIT 5000')
-        logs = cursor.fetchall()
-        conn.close()
-        return render_template('broadcast_history.html', logs=logs)
-    except Exception as e:
-        print(f"Error accessing broadcast history: {e}")
-        return "Error loading broadcast history", 500
-
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+
         try:
             conn = get_db_connection('admin.db')
-            user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+            user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
             conn.close()
+
             if user and check_password_hash(user['password'], password):
                 session['logged_in'] = True
                 session['username'] = username
                 return redirect('/dashboard')
         except Exception as e:
             print(f"Login error: {e}")
+
         return render_template('login.html', error='Invalid credentials')
+
     return render_template('login.html')
 
-# Async broadcast helper
-async def broadcast_all(chat_ids, message, reply_markup):
-    tasks = [async_send_message(chat_id, message, reply_markup) for chat_id in chat_ids]
-    return await asyncio.gather(*tasks)
+@app.route('/dashboard')
+def dashboard():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    user_count = 0
+    users = {}
+    if os.path.exists(USER_DATA_FILE):
+        with open(USER_DATA_FILE, 'r') as f:
+            users = json.load(f)
+            user_count = len(users)
+
+    log_count = 0
+    try:
+        conn = get_db_connection('broadcast_logs.db')
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM broadcast_logs")
+        log_count = cur.fetchone()[0]
+        conn.close()
+    except Exception as e:
+        print(f"Error loading log count: {e}")
+
+    return render_template('dashboard.html',
+                           user_count=user_count,
+                           users=users.values(),
+                           log_count=log_count)
 
 @app.route('/broadcast', methods=['POST'])
 def broadcast():
@@ -139,72 +153,54 @@ def broadcast():
         with open(CHAT_ID_FILE, 'r') as f:
             chat_ids = [line.strip() for line in f if line.strip()]
 
-    # Initialize counters and DB
+    results = asyncio.run(broadcast_all(chat_ids, message))
+
+    # DB logging
     success_count = 0
     failure_count = 0
-    db_conn = get_db_connection('broadcast_logs.db')
-    db_cursor = db_conn.cursor()
+    conn = get_db_connection('broadcast_logs.db')
+    cursor = conn.cursor()
 
-    # Send broadcast to all users
-    for chat_id in chat_ids:
-        try:
-            success = asyncio.run(async_send_message(chat_id, message))
-            status = 'success' if success else 'failure'
-            if success:
-                success_count += 1
-            else:
-                failure_count += 1
-
-            db_cursor.execute('''
-                INSERT INTO broadcast_logs (chat_id, status, timestamp, message_snippet)
-                VALUES (?, ?, ?, ?)
-            ''', (
-                chat_id,
-                status,
-                datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                message[:100]
-            ))
-
-        except Exception as e:
-            print(f"Error processing chat_id {chat_id}: {e}")
+    for chat_id, result in zip(chat_ids, results):
+        status = 'success' if result else 'failure'
+        if result:
+            success_count += 1
+        else:
             failure_count += 1
 
-    db_conn.commit()
-    db_conn.close()
+        cursor.execute('''
+            INSERT INTO broadcast_logs (chat_id, status, timestamp, message_snippet)
+            VALUES (?, ?, ?, ?)
+        ''', (
+            chat_id,
+            status,
+            datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            message[:100]
+        ))
 
-    # Notify admin of summary
-    summary_msg = f"""
-        <b>Broadcast completed:</b>
-        ✅ Sent to <b>{success_count}</b> users
-        ❌ Failed for <b>{failure_count}</b> users
-    """
-    asyncio.run(async_send_message(ADMIN_CHAT_ID, summary_msg))
+    conn.commit()
+    conn.close()
+
+    # Notify Admin
+    summary = f"""
+<b>Broadcast Summary:</b>
+✅ Sent: <b>{success_count}</b>
+❌ Failed: <b>{failure_count}</b>
+"""
+    asyncio.run(async_send_message(ADMIN_CHAT_ID, summary))
 
     return redirect(url_for('dashboard'))
 
-@app.route('/dashboard', methods=['GET'])
-def dashboard():
-    if not session.get('logged_in'):
-        return redirect(url_for('login'))
-
-    user_count = 0
-    users = {}
-    if os.path.exists(USER_DATA_FILE):
-        with open(USER_DATA_FILE, 'r') as f:
-            users = json.load(f)
-            user_count = len(users)
-
-    log_count = 0
+@app.route('/broadcast-history')
+def broadcast_history():
     try:
         conn = get_db_connection('broadcast_logs.db')
-        cur = conn.cursor()
-        cur.execute('SELECT COUNT(*) FROM broadcast_logs')
-        log_count = cur.fetchone()[0]
+        logs = conn.execute("SELECT * FROM broadcast_logs ORDER BY timestamp DESC LIMIT 5000").fetchall()
         conn.close()
+        return render_template('broadcast_history.html', logs=logs)
     except Exception as e:
-        print(f"Error getting log count: {e}")
-
-    return render_template('dashboard.html', user_count=user_count, users=users.values(), log_count=log_count)
+        print(f"History error: {e}")
+        return "Could not load history", 500
 
 @app.route('/logout')
 def logout():
