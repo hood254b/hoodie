@@ -5,28 +5,25 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session
 from sqlalchemy import Update
 from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 import asyncio
 from bot import application
 from db import get_db_path, get_db_connection
-
-
 
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = os.getenv('HOODIE', 'hoodie')  # Change for production
 
 # Configuration
-BOT_TOKEN = os.getenv('BOT_TOKEN', '7270921648:AAH4qX80XtgKUoCzbMlNsDec6enm4TWNKR4')
+BOT_TOKEN = os.getenv('BOT_TOKEN', 'your-bot-token')
 CHAT_ID_FILE = 'chat_ids.txt'
 USER_DATA_FILE = 'users.json'
-ADMIN_CHAT_ID = "6659858896"  # Your admin chat ID
+ADMIN_CHAT_ID = "6659858896"
 USERNAME = 'hoody'
 PASSWORD = 'hoodie25'
 
-
+# Initialize DBs
 def init_databases():
-    """Initialize all required databases"""
     databases = {
         'broadcast_logs.db': '''
             CREATE TABLE IF NOT EXISTS broadcast_logs (
@@ -45,7 +42,6 @@ def init_databases():
             )
         '''
     }
-
     for db_name, schema in databases.items():
         db_path = get_db_path(db_name)
         conn = sqlite3.connect(db_path)
@@ -54,50 +50,36 @@ def init_databases():
         conn.commit()
         conn.close()
 
-
 init_databases()
-from werkzeug.security import generate_password_hash
 
+# Ensure admin user exists
 def reset_admin_user():
     db_conn = get_db_connection('admin.db')
     cursor = db_conn.cursor()
-
     hashed_password = generate_password_hash(PASSWORD)
-
     cursor.execute("SELECT * FROM users WHERE username = ?", (USERNAME,))
     user = cursor.fetchone()
-
     if user:
         cursor.execute("UPDATE users SET password = ? WHERE username = ?", (hashed_password, USERNAME))
         print(f"[INIT] ✅ Admin user '{USERNAME}' password reset.")
     else:
         cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (USERNAME, hashed_password))
         print(f"[INIT] ✅ Admin user '{USERNAME}' created.")
-
     db_conn.commit()
     db_conn.close()
 
-# Call it
 reset_admin_user()
-
 
 # Telegram Bot
 bot = Bot(token=BOT_TOKEN)
 
-
 async def async_send_message(chat_id, message, reply_markup=None):
-    """Wrapper for an async message sending"""
     try:
-        await bot.send_message(
-            chat_id=chat_id,
-            text=message,
-            reply_markup=reply_markup
-        )
+        await bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)
         return True
     except Exception as e:
         print(f"Failed to send to {chat_id}: {e}")
         return False
-
 
 # Routes
 @app.route('/webhook', methods=['POST'])
@@ -105,7 +87,6 @@ def webhook():
     update = Update.de_json(request.get_json(force=True), application.bot)
     application.update_queue.put_nowait(update)
     return 'ok'
-
 
 @app.route('/broadcast-history')
 def broadcast_history():
@@ -120,29 +101,28 @@ def broadcast_history():
         print(f"Error accessing broadcast history: {e}")
         return "Error loading broadcast history", 500
 
-
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-
         try:
             conn = get_db_connection('admin.db')
             user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
             conn.close()
-
             if user and check_password_hash(user['password'], password):
                 session['logged_in'] = True
                 session['username'] = username
                 return redirect('/dashboard')
         except Exception as e:
             print(f"Login error: {e}")
-
         return render_template('login.html', error='Invalid credentials')
-
     return render_template('login.html')
 
+# Async broadcast helper
+async def broadcast_all(chat_ids, message, reply_markup):
+    tasks = [async_send_message(chat_id, message, reply_markup) for chat_id in chat_ids]
+    return await asyncio.gather(*tasks)
 
 @app.route('/broadcast', methods=['POST'])
 def broadcast():
@@ -153,92 +133,66 @@ def broadcast():
     if not message:
         return "Message cannot be empty", 400
 
-    # Prepare VIP button
-    from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
-    keyboard = [[
-        InlineKeyboardButton(
-            text="👑 Access VIP (/vip)",
-            url="http://t.me/mastermind1X2_bot?start=vip"
-        )
-    ]]
+    # VIP button
+    keyboard = [[InlineKeyboardButton("👑 Access VIP (/vip)", url="http://t.me/mastermind1X2_bot?start=vip")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Get chat IDs
+    # Chat IDs
     chat_ids = []
     if os.path.exists(CHAT_ID_FILE):
         with open(CHAT_ID_FILE, 'r') as f:
             chat_ids = [line.strip() for line in f if line.strip()]
 
-    # Initialize counters and DB
-    success_count = 0
-    failure_count = 0
     db_conn = get_db_connection('broadcast_logs.db')
     db_cursor = db_conn.cursor()
 
-    # Process broadcasts
-    for chat_id in chat_ids:
-        try:
-            # Send a message (async)
-            success = asyncio.run(async_send_message(
-                chat_id=chat_id,
-                message=message,
-                reply_markup=reply_markup
-            ))
+    results = asyncio.run(broadcast_all(chat_ids, message, reply_markup))
 
-            # Update counters and log
-            if success:
-                success_count += 1
-                status = 'success'
-            else:
-                failure_count += 1
-                status = 'failure'
+    success_count = 0
+    failure_count = 0
 
-            db_cursor.execute('''
-                INSERT INTO broadcast_logs (chat_id, status, timestamp, message_snippet)
-                VALUES (?, ?, ?, ?)
-            ''', (
-                chat_id,
-                status,
-                datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                message[:100]
-            ))
-
-        except Exception as e:
-            print(f"Error processing chat_id {chat_id}: {e}")
+    for i, chat_id in enumerate(chat_ids):
+        status = 'success' if results[i] else 'failure'
+        if results[i]:
+            success_count += 1
+        else:
             failure_count += 1
 
-    # Finalize DB operations
+        db_cursor.execute('''
+            INSERT INTO broadcast_logs (chat_id, status, timestamp, message_snippet)
+            VALUES (?, ?, ?, ?)
+        ''', (
+            chat_id,
+            status,
+            datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            message[:100]
+        ))
+
     db_conn.commit()
     db_conn.close()
 
-    # Send admin notification
+    # Notify admin
     summary_msg = f"""
         <b>Broadcast completed:</b>
-        ✅ Successfully sent to <b>{success_count}</b> users.
-        ❌ Failed to send to <b>{failure_count}</b> users.
+        ✅ Sent to <b>{success_count}</b> users.
+        ❌ Failed for <b>{failure_count}</b> users.
     """
-    asyncio.run(async_send_message(
-        chat_id=ADMIN_CHAT_ID,
-        message=summary_msg,
-    ))
+    asyncio.run(async_send_message(ADMIN_CHAT_ID, summary_msg))
 
     return redirect(url_for('dashboard'))
-
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    # Get user count
     user_count = 0
+    users = {}
     if os.path.exists(USER_DATA_FILE):
         with open(USER_DATA_FILE, 'r') as f:
             users = json.load(f)
             user_count = len(users)
 
-    # Get log count
     log_count = 0
     try:
         conn = get_db_connection('broadcast_logs.db')
@@ -249,19 +203,12 @@ def dashboard():
     except Exception as e:
         print(f"Error getting log count: {e}")
 
-    return render_template(
-        'dashboard.html',
-        user_count=user_count,
-        users=users.values() if 'users' in locals() else [],
-        log_count=log_count
-    )
-
+    return render_template('dashboard.html', user_count=user_count, users=users.values(), log_count=log_count)
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
-
 
 if __name__ == '__main__':
     app.run(debug=os.getenv('FLASK_DEBUG', 'False') == 'True')
