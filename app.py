@@ -8,7 +8,7 @@ from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from werkzeug.security import check_password_hash
 import asyncio
 from bot import application
-from db import get_db_connection
+from db import get_db_path
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -21,13 +21,6 @@ USER_DATA_FILE = 'users.json'
 ADMIN_CHAT_ID = "6659858896"  # Your admin chat ID
 USERNAME = 'hoody'
 PASSWORD = 'hoodie25'
-
-def get_db_path(db_name):
-    if 'RENDER' in os.environ:
-        base_dir = '/tmp/db'
-        os.makedirs(base_dir, exist_ok=True)
-        return os.path.join(base_dir, db_name)
-    return db_name
 
 
 def init_databases():
@@ -65,7 +58,18 @@ init_databases()
 # Telegram Bot
 bot = Bot(token=BOT_TOKEN)
 
+
+# Helper Functions
+def get_db_connection(db_name):
+    """Get a database connection with row factory"""
+    db_path = get_db_path(db_name)
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
 async def async_send_message(chat_id, message, reply_markup=None):
+    """Wrapper for an async message sending"""
     try:
         await bot.send_message(
             chat_id=chat_id,
