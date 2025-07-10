@@ -13,7 +13,7 @@ from db import get_db_path, get_db_connection
 # --- Configuration ---
 app = Flask(__name__)
 app.secret_key = os.getenv('HOODIE', 'hoodie')
-BOT_TOKEN = os.getenv('BOT_TOKEN', 'your-bot-token')
+BOT_TOKEN = os.getenv('BOT_TOKEN', '7270921648:AAH4qX80XtgKUoCzbMlNsDec6enm4TWNKR4')
 CHAT_ID_FILE = 'chat_ids.txt'
 USER_DATA_FILE = 'users.json'
 ADMIN_CHAT_ID = "6659858896"
